@@ -106,5 +106,8 @@ foreach (KeyValuePair<ITraktShow, Dictionary<int?, List<ITraktRatingsItem>>> sho
     }
 }
 
-PostFactory postFactory = new PostFactory(client);
-postFactory.SetRatings(client, showRatings, seasonRatings);
+if (showRatings.Count > 0 || seasonRatings.Count > 0)
+{
+    PostFactory postFactory = new PostFactory(client);
+    postFactory.SetRatings(client, showRatings, seasonRatings);
+}
