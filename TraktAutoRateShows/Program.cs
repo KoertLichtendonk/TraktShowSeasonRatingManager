@@ -12,7 +12,8 @@ using TraktShowSeasonRatingManager.Factories;
 
 var Config = ConfigManager.Instance.Data;
 
-if(!Config.Enabled)
+Console.WriteLine("TraktShowSeasonRatingManager \"Enabled\" is " + Config.Enabled.ToString());
+if (!Config.Enabled)
 {
     return;
 }

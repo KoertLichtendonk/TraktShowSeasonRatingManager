@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TraktShowSeasonRatingManager": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

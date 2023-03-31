@@ -56,12 +56,14 @@ namespace TraktShowSeasonRatingManager.Configuration
         public static string GetFileOrDirectory(string? path = null, string? file = null)
         {
             string projectName = Assembly.GetCallingAssembly().GetName().Name.Replace(" ", "");
+            string rootPath = string.Format("{0}{1}{2}", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), Path.DirectorySeparatorChar, projectName);
 
-            string rootPath = string.Format("{0}\\{1}", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), projectName);
+            Console.WriteLine(String.Format("Configuration root path was found at {0}.", rootPath));
+
 
             if (!String.IsNullOrEmpty(path))
             {
-                string tmpPath = string.Format("{0}\\{1}", rootPath, path);
+                string tmpPath = string.Format("{0}{1}{2}", rootPath, Path.DirectorySeparatorChar, path);
 
                 if (!(Directory.Exists(tmpPath)))
                 {
@@ -76,7 +78,7 @@ namespace TraktShowSeasonRatingManager.Configuration
 
             if (!String.IsNullOrEmpty(file))
             {
-                return string.Format("{0}\\{1}\\{2}", rootPath, path, file);
+                return string.Format("{0}{3}{1}{3}{2}", rootPath, path, file, Path.DirectorySeparatorChar);
             }
 
             return rootPath;
