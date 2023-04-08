@@ -19,26 +19,28 @@ namespace TraktShowSeasonRatingManager.Factories
     {
         private TraktClient _client;
         private TraktRateLimiter _rateLimiter;
+        private Config _config;
 
-        public GetFactory(TraktClient client)
+        public GetFactory(Config config, TraktClient client)
         {
             _client = client;
             _rateLimiter = new TraktRateLimiter(_client, 1000, TimeSpan.FromMinutes(5));
+            _config = config;
         }
 
         public async Task<List<ITraktRatingsItem>> GetRatedEpisodes(TraktClient client)
         {
-            return _rateLimiter.ExecuteAsync(async client => await client.Users.GetRatingsAsync(ConfigManager.Instance.Data.Username, TraktRatingsItemType.Episode)).Result;
+            return _rateLimiter.ExecuteAsync(async client => await client.Users.GetRatingsAsync(_config.Username, TraktRatingsItemType.Episode)).Result;
         }
 
         public async Task<List<ITraktRatingsItem>> GetRatedSeasons(TraktClient client)
         {
-            return _rateLimiter.ExecuteAsync(async client => await client.Users.GetRatingsAsync(ConfigManager.Instance.Data.Username, TraktRatingsItemType.Season)).Result;
+            return _rateLimiter.ExecuteAsync(async client => await client.Users.GetRatingsAsync(_config.Username, TraktRatingsItemType.Season)).Result;
         }
 
         public async Task<List<ITraktRatingsItem>> GetRatedShows(TraktClient client)
         {
-            return _rateLimiter.ExecuteAsync(async client => await client.Users.GetRatingsAsync(ConfigManager.Instance.Data.Username, TraktRatingsItemType.Show)).Result;
+            return _rateLimiter.ExecuteAsync(async client => await client.Users.GetRatingsAsync(_config.Username, TraktRatingsItemType.Show)).Result;
         }
 
         public async Task<TraktListResponse<ITraktSeason>> GetShowSeasons(TraktClient client, string showId)

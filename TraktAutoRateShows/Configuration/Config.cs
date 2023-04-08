@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TraktShowSeasonRatingManager.Entities;
 using System.Linq;
+using QuickConfig;
 
 namespace TraktShowSeasonRatingManager.Configuration
 {
-    public class Config
+    public class Config : ConfigBase
     {
         public OauthToken Token { get; set; }
         public AppInformation AppInformation { get; set; }

@@ -1,4 +1,8 @@
-﻿using TraktNet;
+﻿using NLog;
+using NLog.Config;
+using NLog.Targets;
+using QuickConfig;
+using TraktNet;
 using TraktNet.Enums;
 using TraktNet.Objects.Authentication;
 using TraktNet.Objects.Get.Ratings;
@@ -10,25 +14,43 @@ using TraktShowSeasonRatingManager.Configuration;
 using TraktShowSeasonRatingManager.Extensions;
 using TraktShowSeasonRatingManager.Factories;
 
-var Config = ConfigManager.Instance.Data;
+// Configuration
+ConfigManager cm = new ConfigManager("TraktShowSeasonRatingManager");
+Config Config = cm.GetConfig<Config>("Config");
 
-Console.WriteLine("TraktShowSeasonRatingManager \"Enabled\" is " + Config.Enabled.ToString());
+// Logging
+ColoredConsoleTarget consoleTarget = new ColoredConsoleTarget("console")
+{
+    Layout = "${longdate} | ${level:uppercase=true} | ${logger} | ${message}"
+};
+
+LoggingConfiguration logConfig = new NLog.Config.LoggingConfiguration();
+logConfig.AddRuleForAllLevels(consoleTarget);
+LogManager.Configuration = logConfig;
+
+Logger log = LogManager.GetCurrentClassLogger();
+
+// Is config enabled?
+log.Debug("TraktShowSeasonRatingManager \"Enabled\" is {0}.", Config.Enabled.ToString());
 if (!Config.Enabled)
 {
     return;
 }
 
+// Setup Trakt Client
 TraktClient client = new TraktClient(Config.AppInformation.client_id, Config.AppInformation.client_id)
 {
     Authorization = TraktAuthorization.CreateWith(Config.Token.access_token)
 };
 
+// Do we need a new Token?
 if (!Config.Token.IsTokenValid())
 {
     TraktResponse<ITraktAuthorization> newAuthorization = await client.Authentication.RefreshAuthorizationAsync(Config.Token.refresh_token);
 
     if (newAuthorization != null && newAuthorization.IsSuccess)
     {
+        // Save Token
         Config.Token.access_token = newAuthorization.Value.AccessToken;
         Config.Token.token_type = newAuthorization.Value.TokenType.ToString().ToLowerInvariant();
         Config.Token.expires_in = newAuthorization.Value.ExpiresInSeconds;
@@ -38,7 +60,7 @@ if (!Config.Token.IsTokenValid())
 
         client.Authorization = newAuthorization.Value;
 
-        ConfigManager.Instance.Save();
+        Config.Save();
     }
 }
 
@@ -46,7 +68,7 @@ Console.WriteLine($"Requests without Authorization possible: {client.IsValidForU
 Console.WriteLine($"Authentication possible: {client.IsValidForAuthenticationProcess}");
 Console.WriteLine($"Requests with Authorization possible: {client.IsValidForUseWithAuthorization}");
 
-GetFactory getFactory = new GetFactory(client);
+GetFactory getFactory = new GetFactory(Config, client);
 var ratedEpisodes = await getFactory.GetRatedEpisodes(client);
 var ratedSeasons = await getFactory.GetRatedSeasons(client);
 var ratedShows = await getFactory.GetRatedShows(client);
@@ -87,7 +109,8 @@ foreach (KeyValuePair<ITraktShow, Dictionary<int?, List<ITraktRatingsItem>>> sho
                 int roundedAvgRating = (int)Math.Round(averageRating.Value, 0, MidpointRounding.ToEven);
 
                 ITraktRatingsItem? currentSeasonRating = ratedSeasons.GetSeason(show.Ids.Trakt, (int)season);
-                if (currentSeasonRating != null && currentSeasonRating.Rating != roundedAvgRating)
+                log.Info("The average rating for {0}, Season {1}, is {2}, rounded to {3}. The current rating on Trakt is {4}.", show.Title, season, averageRating.Value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture), roundedAvgRating, (currentSeasonRating == null ? "N/A" : currentSeasonRating.Rating) );
+                if (currentSeasonRating?.Rating != roundedAvgRating)
                 {
                     var seasonObj = showSeasons.Single(i => i.Number == season);
 
