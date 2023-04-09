@@ -7,13 +7,9 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="KoertLichtendonk.QuickConfig" Version="1.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="NLog" Version="5.1.3" />
     <PackageReference Include="Trakt.NET" Version="1.3.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="QuickConfig">
-      <HintPath>..\..\..\source\repos\KoertLichtendonk\QuickConfig\QuickConfig\bin\Debug\net6.0\QuickConfig.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
