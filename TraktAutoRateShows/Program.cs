@@ -124,7 +124,7 @@ foreach (KeyValuePair<ITraktShow, Dictionary<int?, List<ITraktRatingsItem>>> sho
     int roundedAvgShowRating = (int)Math.Round(averageShowRating, 0, MidpointRounding.ToEven);
 
     ITraktRatingsItem? currentShowRating = ratedShows.GetShow(show.Ids.Trakt);
-    if (currentShowRating != null && currentShowRating.Rating != roundedAvgShowRating)
+    if (currentShowRating?.Rating != roundedAvgShowRating)
     {
         showRatings.Add(new TraktSyncRatingsPostShow() { Ids = show.Ids, Rating = roundedAvgShowRating });
     }
